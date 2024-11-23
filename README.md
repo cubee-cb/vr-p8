@@ -27,3 +27,5 @@ javascript+webxr
 - need a way to capture the canvas and display it in the hmd.
     - it should just be a texture on the page somewhere, right? then we can put a plane covering the screen and call it a day or something.
     
+references:
+- borrowed pico-8 interface from [Pinput](https://github.com/VyrCossont/Pinput)
