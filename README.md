@@ -1,7 +1,7 @@
 # vr.p8
 brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffle.com/pico-8.php) to OpenXR.
 
-helper program:
+##helper program:
 - find the pico-8 process, search its memory for a magic number like [pinput](https://github.com/VyrCossont/Pinput) does.
     - use this offset to read the rest of pico-8 memory since the layout should be the same from there.
     - e.g. the sprite memory would be below the magic number, while the display would be above.
@@ -11,6 +11,7 @@ helper program:
     - pico-8 builds a vertex buffer "scene" in memory that we process to construct the scene.
         - pico-8 handles the main game loop, mesh and texture mapping, object transforms, constructing the scene, etc.
         - all camera transformations, culling, rasterisation, depth sorting, (lighting?) is done on the vr.p8 side at hmd resolution.
+        - should we utilise display memory for 2d hud elements in screen space?
     - pico-8 passes raw triangle/uv coords via the display memory.
         - is this screenspace or worldspace? does pico-8 handle everything but actual tri rendering? or do we just do verts+culling in pico-8 and vr.p8 does world>camera>screenspace transforms?
         - triangles are rendered in full resolution.
@@ -18,11 +19,11 @@ helper program:
       - performance is severely limited though, so the more we offload the better. but, we don't want to go so far that we're not "running vr on pico-8" anymore.
       - authentic 128x128 (64x128 per-eye, unless using multi-display mode) vr gameplay.
 - vr.p8 writes hmd/controller pose and input states to pico-8 memory.
-    - precision: how good is pico-8's fixed point precision for vr?
+    - pico-8's number precision doesn't matter if we're handling camera transforms in the vr.p8 application, unless we want to render something attached to the player (like hands or a ui). it should be precise enough anyway.
 - use display palette to render triangles.
     - this program is only for interfacing with the hmd, it shouldn't do anything more than pico-8 can do such as extra colours. (though maybe vertex colour blending could be allowed)
 
-openxr input (hmd/controller pose, buttons)
+###openxr input (hmd/controller pose, buttons)
 starts at gpio address (`0x5f80`)
 ```
 -- targeting quest/pico controller layout for now
@@ -48,7 +49,7 @@ u8 right_rumble
 ```
 perhaps it would be better to map openxr actions instead of buttons.
 
-vertex buffer
+###vertex buffer
 starts at memory address 0x8000 (upper memory)
 ```
 1 x
@@ -61,7 +62,7 @@ starts at memory address 0x8000 (upper memory)
     0 tex or col switch
     1 
     2 
-    3 u / blend switch
+    3 u / blend switch?
     4 u / col
     5 u / col
     6 u / col
@@ -76,18 +77,18 @@ starts at memory address 0x8000 (upper memory)
     6 v
     7 v
 ```
-Tris are drawn in fans: after drawing one tri, its last two verts are reused for the next tri
+Tris are drawn in fans: after drawing one tri, its last two verts are reused for the next tri.
 If a vert has everything zeroed, stop here and start a new fan
 
 UVs have a precision of 0-31 (half-tile steps)
-    - they cannot reach the right/lower-most edge
-    - may add another bit to solve that and so UVs can wrap
+- they cannot reach the right/lower-most edge
+- may add another bit to solve that and so UVs can wrap, if we don't need those bits for other stuff in the future.
 
 
-(old) javascript+webxr
+##(old) javascript+webxr
 - experiment here: [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber)
 - needs a way to capture the canvas and display it in the hmd.
     - it should just be a texture on the page somewhere, right? then we can put a plane covering the screen and call it a day or something.
     
-references:
+##references:
 - borrowed pico-8 interface from [Pinput](https://github.com/VyrCossont/Pinput)
