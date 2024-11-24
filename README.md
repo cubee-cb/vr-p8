@@ -1,7 +1,7 @@
 # vr.p8
 brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffle.com/pico-8.php) to OpenXR.
 
-##helper program:
+## helper program:
 - find the pico-8 process, search its memory for a magic number like [pinput](https://github.com/VyrCossont/Pinput) does.
     - use this offset to read the rest of pico-8 memory since the layout should be the same from there.
     - e.g. the sprite memory would be below the magic number, while the display would be above.
@@ -23,7 +23,7 @@ brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffl
 - use display palette to render triangles.
     - this program is only for interfacing with the hmd, it shouldn't do anything more than pico-8 can do such as extra colours. (though maybe vertex colour blending could be allowed)
 
-###openxr input (hmd/controller pose, buttons)
+### openxr input (hmd/controller pose, buttons)
 starts at gpio address (`0x5f80`)
 ```
 -- targeting quest/pico controller layout for now
@@ -49,7 +49,7 @@ u8 right_rumble
 ```
 perhaps it would be better to map openxr actions instead of buttons.
 
-###vertex buffer
+### vertex buffer
 starts at memory address 0x8000 (upper memory)
 ```
 1 x
@@ -85,10 +85,10 @@ UVs have a precision of 0-31 (half-tile steps)
 - may add another bit to solve that and so UVs can wrap, if we don't need those bits for other stuff in the future.
 
 
-##(old) javascript+webxr
+## (old) javascript+webxr
 - experiment here: [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber)
 - needs a way to capture the canvas and display it in the hmd.
     - it should just be a texture on the page somewhere, right? then we can put a plane covering the screen and call it a day or something.
     
-##references:
+## references:
 - borrowed pico-8 interface from [Pinput](https://github.com/VyrCossont/Pinput)
