@@ -12,18 +12,19 @@ use memchr::memmem;
 use uuid::Uuid;
 use std::fmt::{Display, Formatter};
 
-use super::constants::MAGIC;
-//use super::gamepad::PinputGamepadArray;
+use super::constants::{MAGIC, P8_GPIO, P8_UPPER};
+use super::input::HMDInterfaceArray;
+use super::renderer::VertexBuffer;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("no running PICO-8 or WASM-4 processes found")]
     NoProcessesFound,
 
-    #[error("Pinput magic bytes not found in process (PID {0})")]
+    #[error("Magic not found in process (PID {0})")]
     PinputNotEnabled(Pid),
 
-    #[error("Pinput magic bytes not found in any process memory region")]
+    #[error("Magic not found in any process memory region")]
     PinputMagicNotFound,
 
     #[error("couldn't find app bundle containing {path}")]
@@ -209,7 +210,9 @@ pub struct RuntimeConnection {
     /// First 16 bytes of GPIO mapped as a UUID.
     pub gpio_as_uuid: DataMember<Uuid>,
     //// All 128 bytes of GPIO mapped as an array of gamepads.
-    //pub gpio_as_gamepads: DataMember<PinputGamepadArray>,
+    pub gpio_as_interface: DataMember<HMDInterfaceArray>,
+    //// Upper memory mapped as a vertex buffer.
+    pub upper_memory: DataMember<VertexBuffer>,
 }
 
 impl RuntimeConnection {
@@ -223,7 +226,8 @@ impl RuntimeConnection {
             pid,
             flavor,
             gpio_as_uuid: DataMember::new_offset(handle, vec![gpio_address]),
-            //gpio_as_gamepads: DataMember::new_offset(handle, vec![gpio_address]),
+            gpio_as_interface: DataMember::new_offset(handle, vec![gpio_address]),
+            upper_memory: DataMember::new_offset(handle, vec![gpio_address - P8_GPIO + P8_UPPER]),
         }
     }
 
@@ -260,6 +264,8 @@ impl RuntimeConnection {
                 Some(map.start() + offset)
             })
             .ok_or(Error::PinputNotEnabled(runtime_pid))?;
+
+            
 
         Ok(RuntimeConnection::new(
             runtime_pid,

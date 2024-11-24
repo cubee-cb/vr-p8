@@ -11,47 +11,29 @@ pub const MAGIC: Uuid = Uuid::from_u128(0x6F6D6756526F6E5049434F3821576F77);
 */
 
 /// 60 Hz.
-//pub static FRAME_DURATION_MS: i64 = 16;
+pub static FRAME_DURATION_MS: i64 = 16;
 
 /// 1 Hz between attempts to connect to the runtime.
 pub static SCAN_INTERVAL_MS: i64 = 1000;
 
 ///
-pub static VR_VERT_STRIDE: i64 = 8;
-/*
-1 x
-2 x
-3 y
-4 y
-5 z
-6 z
-7 u + col switch
-    0 tex or col switch
-    1 
-    2 
-    3 u / blend switch
-    4 u / col
-    5 u / col
-    6 u / col
-    7 u / col
-8 v
-    0 
-    1 
-    2 
-    3 v
-    4 v
-    5 v
-    6 v
-    7 v
+pub const VR_VERT_STRIDE: i64 = 8;
 
-
-Tris are drawn in fans: after drawing one tri, its last two verts are reused for the next tri
-If a vert has everything zeroed, this triangle fan is finished
-
-UVs have a precision of 0-31 (half-tile steps)
-    - they cannot reach the right/lower-most edge
-*/
-
-pub static VR_VERT_BUFFER_SIZE: i64 = 16384;
-pub static VR_MAX_VERTS: i64 = VR_VERT_BUFFER_SIZE / VR_VERT_STRIDE;
+pub const VR_VERT_BUFFER_SIZE: i64 = 16384;
+pub const VR_MAX_VERTS: i64 = VR_VERT_BUFFER_SIZE / VR_VERT_STRIDE;
 //pub static VR_MAX_VERTS_BYTES: i64 = VR_VERT_BUFFER_SIZE_ADDR * 8;
+
+
+
+//pub const P8_SPRITES: usize = 0x0000;
+//pub const P8_SHARED: usize = 0x1000;
+//pub const P8_MAP: usize = 0x2000;
+//pub const P8_FLAGS: usize = 0x3000;
+//pub const P8_MUSIC: usize = 0x3100;
+//pub const P8_SFX: usize = 0x3200;
+//pub const P8_GENERAL: usize = 0x4300;
+//pub const P8_DRAWSTATE: usize = 0x5f00;
+//pub const P8_HARDSTATE: usize = 0x5f40;
+pub const P8_GPIO: usize = 0x5f80;
+//pub const P8_DISPLAY: usize = 0x6000;
+pub const P8_UPPER: usize = 0x8000;

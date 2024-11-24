@@ -22,9 +22,71 @@ helper program:
 - use display palette to render triangles.
     - this program is only for interfacing with the hmd, it shouldn't do anything more than pico-8 can do such as extra colours. (though maybe vertex colour blending could be allowed)
 
-javascript+webxr
+openxr input (hmd/controller pose, buttons)
+starts at gpio address (`0x5f80`)
+```
+-- targeting quest/pico controller layout for now
+u8 buttons:
+- a
+- b
+- x
+- y
+- left_stick
+- right_stick
+- left_menu
+- 
+u8 left_trigger
+u8 right_trigger
+u8 left_grip
+u8 right_grip
+i16 left_stick_x
+i16 left_stick_y
+i16 right_stick_x
+i16 right_stick_y
+u8 left_rumble
+u8 right_rumble
+```
+perhaps it would be better to map openxr actions instead of buttons.
+
+vertex buffer
+starts at memory address 0x8000 (upper memory)
+```
+1 x
+2 x
+3 y
+4 y
+5 z
+6 z
+7 u + col switch
+    0 tex or col switch
+    1 
+    2 
+    3 u / blend switch
+    4 u / col
+    5 u / col
+    6 u / col
+    7 u / col
+8 v
+    0 
+    1 
+    2 
+    3 v
+    4 v
+    5 v
+    6 v
+    7 v
+```
+Tris are drawn in fans: after drawing one tri, its last two verts are reused for the next tri
+If a vert has everything zeroed, stop here and start a new fan
+
+UVs have a precision of 0-31 (half-tile steps)
+    - they cannot reach the right/lower-most edge
+    - may add another bit to solve that and so UVs can wrap
+
+
+(old) javascript+webxr
 - experiment here: [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber)
-- need a way to capture the canvas and display it in the hmd.
+- needs a way to capture the canvas and display it in the hmd.
     - it should just be a texture on the page somewhere, right? then we can put a plane covering the screen and call it a day or something.
     
 references:
