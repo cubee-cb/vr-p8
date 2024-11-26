@@ -83,7 +83,6 @@ starts at upper memory address (`0x8000`)
 Using vertex transforms, tris are drawn in fans: after drawing one tri, its last two verts are reused for the next tri.
 - Colour of the triangle and its blend state are determined by the last transform.
 - A tri fan stops once a non-vertex transform is reached.
-In 
 - UVs have a precision of 0-63, in half-tile steps
 - this allows for wrapping uvs, since 0-32 cover the full map
 ```
@@ -96,7 +95,7 @@ In
     2-7 v / (unused)
 ```
 
-Point transforms lets shapes be drawn at a location, primarily circles.
+Point transforms let shapes be drawn at a location.
 - for a circle, 8 is used as the radius.
 - for a billboard, 8 is used as the sprite index, and colour is used as size. Large billboards are 1-16 units and take 2, 4, 6, or 8 sprites based on size, while small billboards are 0-1.5 units and use one sprite.
 ```
@@ -114,17 +113,26 @@ Light transform is used as a light source?
 
 A none transform can simply be used to separate triangle fans without rendering anything.
 
+### screenspace canvas
+potentially, we could utilise pico-8's normal display memory and reconstruct it as a texture to display for screenspace HUD elements. This should follow the display palette and transparency settings.
+- different update rates may cause memory to be read partway through a frame. this would potentially cause transparency to be incorrect, leading to flickering as it changes across rendered frames. perhaps we allocate a portion of gpio to be read for the transparent colour indexes, or specify colour 0 or 15 as the transparent colour since the display palette is observed.
+- with this it should also be possible to just play normal pico-8 games in the headset by setting the magic number and redirecting `btn()` and `btnp()` to vr.p8 inputs.
 
 ### currently implemented
 - connecting runtime to pico-8
 - writing to gpio
 - reading from upper memory
 
+### todo
+- implement openxr
+- get vr device poses and input states
+- rendering triangles
+- get textures from pico-8 (spritesheet and display, map?)
+- a demo game in pico-8 (probably a bad saber remake)
 
-## (old) javascript+webxr
-- experiment here: [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber)
-- needs a way to capture the canvas and display it in the hmd.
-    - it should just be a texture on the page somewhere, right? then we can put a plane covering the screen and call it a day or something.
-    
+## ...why?
+idk i feel like it would be funny to play pico-8 with my pico 4.
+also i want to build a vr game in pico-8 because i think it's possible, given an interface to the hardware. see [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber), my attempt at making it interface with webxr that stopped cause i couldn't get the screen to display in the headset. you can also play it with a cardboard emulator like trinus.
+
 ## references:
 - borrowed pico-8 interface from [Pinput](https://github.com/VyrCossont/Pinput)
