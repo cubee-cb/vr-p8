@@ -41,7 +41,10 @@ bitflags! {
 #[repr(C, packed)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct HMDInterface {
+    // controller inputs (16 bytes)
     //pub flags: ControllerFlags,
+    pub unused_input: u8,
+
     pub buttons: ControllerButtons,
 
     pub left_trigger: u8,
@@ -56,9 +59,33 @@ pub struct HMDInterface {
     pub right_stick_x: i16,
     pub right_stick_y: i16,
 
-    /// Output from the runtime.
+    /// this should be set by pico-8 instead.
     pub left_rumble: u8,
     pub right_rumble: u8,
+
+    // hmd pose (12 bytes)
+    pub hmd_x: i16,
+    pub hmd_y: i16,
+    pub hmd_z: i16,
+    pub hmd_yaw: i16,
+    pub hmd_pitch: i16,
+    pub hmd_roll: i16,
+
+    // left controller pose (12 bytes)
+    pub left_x: i16,
+    pub left_y: i16,
+    pub left_z: i16,
+    pub left_yaw: i16,
+    pub left_pitch: i16,
+    pub left_roll: i16,
+
+    // right controller pose (12 bytes)
+    pub right_x: i16,
+    pub right_y: i16,
+    pub right_z: i16,
+    pub right_yaw: i16,
+    pub right_pitch: i16,
+    pub right_roll: i16,
 }
 
 

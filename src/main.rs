@@ -138,9 +138,11 @@ fn run_gamepad_loop(
             //}
         //}
 
+        // read vertex buffer from upper memory
         match unsafe {runtime_connection.upper_memory.read() } {
             Ok(buffer) => {
                 for vertex in buffer.verts {
+                    // just print the first one for now
                     println!("{}", vertex.coords);
                     break;
                 }
@@ -148,13 +150,14 @@ fn run_gamepad_loop(
             Err(err) => {
                 // Failure here probably indicates that the runtime quit.
                 println!(
-                    "Failed to write from {}: {:#}",
+                    "Failed to read from {}: {:#}",
                     runtime_connection.flavor, err
                 );
                 return Ok(());
             }
         }
 
+        // write hmd status to gpio
         match runtime_connection.gpio_as_interface.write(&interfaces) {
             Ok(_) => (),
             Err(err) => {
