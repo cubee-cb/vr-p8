@@ -67,6 +67,7 @@ perhaps it would be better to map openxr actions instead of buttons.
 
 ### transform buffer (pico to vr, for rendering)
 starts at upper memory address (`0x8000`)
+first address contains a bool stating if the buffer is locked by pico-8
 ```
 1 x
 2 x
@@ -129,6 +130,10 @@ potentially, we could utilise pico-8's normal display memory and reconstruct it 
 - rendering triangles
 - get textures from pico-8 (spritesheet and display, map?)
 - a demo game in pico-8 (probably a bad saber remake)
+
+### thoughts
+- maybe a transform type could be a "space switch", so we can have `world`, `hmd`, `left hand`, `right hand` spaces that transforms can be attached to, so that the pico-8 update rate doesn't cause controller tracking to feel juddery in-world.
+    - i.e. you would change render space to left controller, place the verts for the hand, then it'll render on the hand regardless of if the transform buffer is updated or not.
 
 ## ...why?
 idk i feel like it would be funny to play pico-8 with my pico 4.

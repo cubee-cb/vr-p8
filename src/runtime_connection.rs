@@ -14,7 +14,7 @@ use std::fmt::{Display, Formatter};
 
 use super::constants::{MAGIC, P8_GPIO, P8_UPPER};
 use super::input::HMDInterfaceArray;
-use super::renderer::VertexBuffer;
+use super::renderer::TransBuffer;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -212,7 +212,7 @@ pub struct RuntimeConnection {
     //// All 128 bytes of GPIO mapped as an array of gamepads.
     pub gpio_as_interface: DataMember<HMDInterfaceArray>,
     //// Upper memory mapped as a vertex buffer.
-    pub upper_memory: DataMember<VertexBuffer>,
+    pub upper_memory: DataMember<TransBuffer>,
 }
 
 impl RuntimeConnection {

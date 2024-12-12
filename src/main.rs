@@ -13,13 +13,14 @@ mod runtime_connection;
 mod input;
 mod renderer;
 
-use crate::constants::{MAGIC, FRAME_DURATION_MS, VR_VERT_STRIDE, VR_VERT_BUFFER_SIZE, VR_MAX_VERTS, SCAN_INTERVAL_MS};
+use crate::constants::{MAGIC, FRAME_DURATION_MS, VR_TRANS_STRIDE, VR_TRANSBUFFER_SIZE, VR_MAX_TRANSFORMS, SCAN_INTERVAL_MS};
 use crate::runtime_connection::RuntimeConnection;
 use crate::error::Error;
 use crate::input::HMDInterfaceArray;
+use crate::renderer::render_buffer;
 
 fn main() -> Result<(), Error> {
-    println!("magic: {}\nvert stride: {} (space: {})\nmax verts: {}\ntri range: {}-{} (separate - fan)", MAGIC, VR_VERT_STRIDE, VR_VERT_BUFFER_SIZE, VR_MAX_VERTS, VR_MAX_VERTS / 4, VR_MAX_VERTS - 2);
+    println!("magic: {}\nvert stride: {} (space: {})\nmax verts: {}\ntri range: {}-{} (separate - fan)", MAGIC, VR_TRANS_STRIDE, VR_TRANSBUFFER_SIZE, VR_MAX_TRANSFORMS, VR_MAX_TRANSFORMS / 4, VR_MAX_TRANSFORMS - 2);
 
     check_prerequisites()?;
 
@@ -141,11 +142,18 @@ fn run_gamepad_loop(
         // read vertex buffer from upper memory
         match unsafe {runtime_connection.upper_memory.read() } {
             Ok(buffer) => {
-                for vertex in buffer.verts {
+                /*/ print transforms
+                for t in buffer.transforms {
                     // just print the first one for now
-                    println!("{}", vertex.coords);
+                    println!("coord: {},{},{} (uv: {},{})", t.x, t.y, t.z, t.u, t.v);
                     break;
                 }
+                // */
+
+                // render display from transform buffer
+                render_buffer(buffer);
+
+
             },
             Err(err) => {
                 // Failure here probably indicates that the runtime quit.
@@ -156,6 +164,12 @@ fn run_gamepad_loop(
                 return Ok(());
             }
         }
+
+
+
+
+
+
 
         // write hmd status to gpio
         match runtime_connection.gpio_as_interface.write(&interfaces) {
