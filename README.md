@@ -68,6 +68,8 @@ perhaps it would be better to map openxr actions instead of buttons.
 ### transform buffer (pico to vr, for rendering)
 starts at upper memory address (`0x8000`)
 first address contains a bool stating if the buffer is locked by pico-8
+coordinates are integers; the rendered world should be scaled accordingly, say for example 1 unit is 1cm
+
 ```
 1 x
 2 x

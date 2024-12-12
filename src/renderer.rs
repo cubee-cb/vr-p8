@@ -12,7 +12,7 @@ pub struct Transform {
 
 #[derive(Copy, Clone, Debug)]
 pub struct TransBuffer {
-    pub state: State,
+    //pub state: State,
     pub transforms: [Transform; VR_MAX_TRANSFORMS as usize]
 }
 
@@ -50,12 +50,13 @@ pub fn draw_tri(transforms:Vec<Transform>) {
 }
 
 pub fn render_buffer(mut buffer:TransBuffer) -> bool {
-    // skip if the buffer is not free
+    /*/ skip if the buffer is not free
     if buffer.state != State::Free {
         return false;
     }
     //TODO: this currently is not written to pico-8 memory
     buffer.state = State::OccupiedRendering;
+    // */
 
     let mut tri_buff: Vec<Transform> = vec![];
 
@@ -97,13 +98,13 @@ pub fn render_buffer(mut buffer:TransBuffer) -> bool {
         };
 
 
-        println!("got transform: mode {}", mode);
+        //println!("got transform: mode {}", mode);
 
         
     }
 
     // buffer is done being read
-    buffer.state = State::Free;
+    //buffer.state = State::Free;
 
     // success
     return true;

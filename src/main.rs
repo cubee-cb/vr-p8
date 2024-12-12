@@ -142,11 +142,16 @@ fn run_gamepad_loop(
         // read vertex buffer from upper memory
         match unsafe {runtime_connection.upper_memory.read() } {
             Ok(buffer) => {
-                /*/ print transforms
+                // print transforms
+                let mut i = 0;
                 for t in buffer.transforms {
-                    // just print the first one for now
+                    // just print the first few for now
                     println!("coord: {},{},{} (uv: {},{})", t.x, t.y, t.z, t.u, t.v);
-                    break;
+                    
+                    i += 1;
+                    if i > 5 {
+                        break;
+                    }
                 }
                 // */
 
