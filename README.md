@@ -18,6 +18,20 @@ brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffl
 - use display palette to render triangles.
     - this program is only for interfacing with the hmd, it shouldn't do anything more than pico-8 can do such as extra colours. (though maybe vertex colour blending could be allowed)
 
+### currently implemented
+- connecting runtime to pico-8
+- vr.p8: writing device status to gpio
+- vr.p8: reading transforms from upper memory
+- pico-8: writing transforms to upper memory
+- pico-8: reading device status from gpio
+
+### todo
+- vr.p8: implement openxr
+- vr.p8: get vr device poses and input states
+- vr.p8: rendering triangles
+- vr.p8: get textures from pico-8 (spritesheet and display, map?)
+- pico-8: a demo game in pico-8 (probably port bad saber and finish it)
+
 ### openxr input (hmd/controller pose, buttons) (vr to pico, for input)
 starts at gpio address (`0x5f80`)
 ```
@@ -63,13 +77,11 @@ i16 right_yaw
 i16 right_pitch
 i16 right_roll
 ```
-perhaps it would be better to map openxr actions instead of buttons.
 
 ### transform buffer (pico to vr, for rendering)
 starts at upper memory address (`0x8000`)
-first address contains a bool stating if the buffer is locked by pico-8
-coordinates are integers; the rendered world should be scaled accordingly, say for example 1 unit is 1cm
 
+coordinates are integers; the rendered world should be scaled accordingly: currently 1 unit is 1cm
 ```
 1 x
 2 x
@@ -78,16 +90,28 @@ coordinates are integers; the rendered world should be scaled accordingly, say f
 5 z
 6 z
 7 u + switches
-    0-1 mode switch (one of vertex, point, light?, or none)
+    0-1 mode switch (one of: meta, vertex, point, unused)
     2-3 variable
     4-7 colour (typically)
 8 varies by mode: see below
 ```
-Using vertex transforms, tris are drawn in fans: after drawing one tri, its last two verts are reused for the next tri.
+
+Meta transforms are used to control certain things, like render space.
+If no flags are set, they do nothing and can be used to separate tri fans.
+```
+7 meta 1
+    2 enable flag (render space)
+    3-5 enable flag (unused)
+    6-7 render space (one of: hmd, world, left, right)
+8 meta 2
+    0-7 unused
+```
+
+Vertex transforms draw triangles in fans: after drawing one tri, its last two verts are reused for the next tri.
 - Colour of the triangle and its blend state are determined by the last transform.
 - A tri fan stops once a non-vertex transform is reached.
 - UVs have a precision of 0-63, in half-tile steps
-- this allows for wrapping uvs, since 0-32 cover the full map
+    - this allows for wrapping uvs, since 0-32 cover the full map
 ```
 7 u + switches
     2-3 u / (unused)
@@ -100,53 +124,36 @@ Using vertex transforms, tris are drawn in fans: after drawing one tri, its last
 
 Point transforms let shapes be drawn at a location.
 - for a circle, 8 is used as the radius.
-- for a billboard, 8 is used as the sprite index, and colour is used as size. Large billboards are 1-16 units and take 2, 4, 6, or 8 sprites based on size, while small billboards are 0-1.5 units and use one sprite.
+- for a billboard, 8 is used as the sprite index, and colour is used as size.
+    - Small billboards are 1-16cm (1cm step) and use one sprite. They always face the camera on yaw and pitch.
+    - Large billboards are 20-320cm (20cm step) and use sprites from 1x1 to 4x4 based on size. They only face the camera on yaw.
 ```
 7 shape
     2-3 shape (circle, small billboard, large billboard, 3)
 8 shape value (0-255)
 ```
 
-Light transform is used as a light source?
-```
-8 light settings
-    0-3 range (0-15 units)
-    4-7 intensity (0-15)
-```
-
-A none transform can simply be used to separate triangle fans without rendering anything.
-
 ### screenspace canvas
 potentially, we could utilise pico-8's normal display memory and reconstruct it as a texture to display for screenspace HUD elements. This should follow the display palette and transparency settings.
 - different update rates may cause memory to be read partway through a frame. this would potentially cause transparency to be incorrect, leading to flickering as it changes across rendered frames. perhaps we allocate a portion of gpio to be read for the transparent colour indexes, or specify colour 0 or 15 as the transparent colour since the display palette is observed.
 - with this it should also be possible to just play normal pico-8 games in the headset by setting the magic number and redirecting `btn()` and `btnp()` to vr.p8 inputs.
 
-### currently implemented
-- connecting runtime to pico-8
-- vr.p8: writing device status to gpio
-- vr.p8: reading transforms from upper memory
-- pico-8: writing transforms to upper memory
-- pico-8: reading device status from gpio
-
-### todo
-- implement openxr
-- get vr device poses and input states
-- rendering triangles
-- get textures from pico-8 (spritesheet and display, map?)
-- a demo game in pico-8 (probably a bad saber remake)
-
 ### thoughts
-- updates will be juddery, as pico-8 runs at up to 60fps, while most hmds run at 90hz (2/3).
+- updates will be juddery, as pico-8 runs at up to 60fps, while most hmds run at 90hz (2/3) -> (updated/rendered).
     - this could be mitigated by running pico-8 at 30fps and interpolating transforms for the other two frames. (1/3) (for hmds at 90hz)
     - or, set the hmd to a 60hz or 120hz refresh rate. (1 or 1/2)
     - or, run pico-8 on a display at the hmd refresh rate and use `_set_fps()` to match it.
         - this comes with other issues, however. like very low cpu limits, or whether that bug has been or will be fixed.
 - maybe a transform type could be a "space switch", so we can have `world`, `hmd`, `left hand`, `right hand` spaces that transforms can be attached to, so that the pico-8 update rate doesn't cause controller tracking to feel juddery in-world.
+    - should be resolved by `meta transforms`
     - i.e. you would change render space to left controller, place the verts for the hand, then it'll render on the hand regardless of if the transform buffer is updated or not.
 
 ## ...why?
 idk i feel like it would be funny to play pico-8 with my pico 4.
-also i want to build a vr game in pico-8 because i think it's possible, given an interface to the hardware. see [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber), my attempt at making it interface with webxr that stopped cause i couldn't get the screen to display in the headset. you can also play it with a cardboard emulator like trinus.
+
+also i want to build a vr game in pico-8 because i think it's possible, given an interface to the hardware.
+
+see [bad saber](https://cubee.games/?rel=the_random_box&sub=bad_saber), my attempt at making it interface with webxr that stopped cause i couldn't get the screen to display in the headset. you can also play it with a cardboard vr emulator like trinus.
 
 ## references:
 - borrowed pico-8 interface from [Pinput](https://github.com/VyrCossont/Pinput)

@@ -28,8 +28,8 @@ pub enum State {
 enum TransType {
     Vertex,
     Object,
-    _Unused,
-    None
+    Meta,
+    _Unused
 }
 
 pub fn draw_tri(transforms:Vec<Transform>) {
@@ -92,12 +92,12 @@ pub fn render_buffer(buffer:TransBuffer) -> bool {
 
             2 => {
                 tri_buff.clear();
-                TransType::_Unused
+                TransType::Meta
             },
 
             _ => {
                 tri_buff.clear();
-                TransType::None
+                TransType::_Unused
             },
 
         };
