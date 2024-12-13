@@ -70,7 +70,6 @@ pub fn render_buffer(buffer:TransBuffer) -> bool {
         let _trans_type = match mode {
             0 => {
                 // skip transforms if we don't have enough to draw a triangle
-                //TODO: this may cause issues since it won't be cleared when processing the other transform types
                 tri_buff.push(transform);
                 if tri_buff.len() < 3 {
                     continue;
@@ -87,10 +86,14 @@ pub fn render_buffer(buffer:TransBuffer) -> bool {
             },
 
             1 => {
+                tri_buff.clear();
                 TransType::Object
             },
 
-            2 => {TransType::_Unused},
+            2 => {
+                tri_buff.clear();
+                TransType::_Unused
+            },
 
             _ => {
                 tri_buff.clear();
