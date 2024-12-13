@@ -123,8 +123,10 @@ potentially, we could utilise pico-8's normal display memory and reconstruct it 
 
 ### currently implemented
 - connecting runtime to pico-8
-- writing to gpio
-- reading from upper memory
+- vr.p8: writing device status to gpio
+- vr.p8: reading transforms from upper memory
+- pico-8: writing transforms to upper memory
+- pico-8: reading device status from gpio
 
 ### todo
 - implement openxr

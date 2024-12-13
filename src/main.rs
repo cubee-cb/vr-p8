@@ -173,7 +173,31 @@ fn run_gamepad_loop(
 
 
 
+        // positions are cm
+        // angles should be (-3600, 3600) for now
+        // i presume openxr reports radians? all these angle formats are annoying.
+        // maybe add more precision later, but this is just for if the
+        // pico-8 game needs to know the device orientation.
+        interfaces[0].hmd_x = 0;
+        interfaces[0].hmd_y = 150;
+        interfaces[0].hmd_z = 0;
+        interfaces[0].hmd_yaw = 0;
+        interfaces[0].hmd_pitch = 0;
+        interfaces[0].hmd_roll = 0;
 
+        interfaces[0].left_x = -10;
+        interfaces[0].left_y = 80;
+        interfaces[0].left_z = -5;
+        interfaces[0].left_yaw = -360;
+        interfaces[0].left_pitch = 360;
+        interfaces[0].left_roll = 0;
+
+        interfaces[0].right_x = 10;
+        interfaces[0].right_y = 80;
+        interfaces[0].right_z = -5;
+        interfaces[0].right_yaw = 360;
+        interfaces[0].right_pitch = 360;
+        interfaces[0].right_roll = 0;
 
 
         // write hmd status to gpio

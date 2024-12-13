@@ -30,9 +30,16 @@ function _draw()
  cls()
  print(vr_connected() and "connected!" or "waiting...",40,8,vr_connected() and 11 or 13)
 
+ -- show head of transforms
  print("transform buffer head:",8,24,13)
  for i=0,10 do
-  ?i..": "..vr_read_transform(i),8,32+i*6,7
+  ?i..": "..vrd_read_transform(i),8,32+i*6,7
+ end
+ 
+ -- show device poses
+ for i=0,2 do
+  local x,y,z,yaw,pit,rol=vr_device_pose(i)
+  print(split("hmd,left,right")[i+1]..": "..x..","..y..","..z.." "..yaw..","..pit..","..rol,8,108+6*i,13)
  end
 end
 
@@ -43,7 +50,7 @@ end
 -- based on pinput bt vyrcossont
 --https://github.com/vyrcossont/pinput
 
-vr_addr=0x5f80
+vr_gpio=0x5f80
 vr_buffer=0x8000
 vr_trans_idx=0
 vr_magic={
@@ -55,12 +62,12 @@ vr_magic={
 
 function vr_init()
  for i=0,#vr_magic-1 do
-  poke4(vr_addr+4*i,vr_magic[i+1])
+  poke4(vr_gpio+4*i,vr_magic[i+1])
  end
 end
 
 function vr_connected()
- return peek4(vr_addr)~=vr_magic[1]
+ return peek4(vr_gpio)~=vr_magic[1]
 end
 
 function vr_update()
@@ -101,17 +108,17 @@ end
 
 -- hmd:0 left:1 right:2
 function vr_device_pose(id)
- local stride=6
+ local stride=12
 
  local addr=vr_gpio+16+id*stride
 
- local x=peek2(addr)
- local y=peek2(addr+2)
- local z=peek2(addr+4)
+ local x=peek2(addr)/1
+ local y=peek2(addr+2)/1
+ local z=peek2(addr+4)/1
  
- local yaw=peek2(addr+6)
- local pit=peek2(addr+8)
- local rol=peek2(addr+10)
+ local yaw=peek2(addr+6)/3600
+ local pit=peek2(addr+8)/3600
+ local rol=peek2(addr+10)/3600
  
  return x,y,z,yaw,pit,rol
 end
@@ -140,7 +147,7 @@ end
 -- vr.p8 debug
 
 
-function vr_read_transform(id)
+function vrd_read_transform(id)
  local stride=8
  local addr=vr_buffer+id*stride
 
