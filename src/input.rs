@@ -32,18 +32,11 @@ bitflags! {
     }
 }
 
-/// Structure representing a gamepad to the runtime.
-/// Based on <https://docs.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad>
-/// and <https://docs.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_vibration>
-/// but prefixed with controller flags and a battery meter, and with smaller rumble types to fit
-/// into a convenient size (16 bytes). All fields are written to the runtime,
-/// except for the rumble fields, which are read from the runtime.
+/// Structure representing all of the headset and controller inputs and poses.
 #[repr(C, packed)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct HMDInterface {
-    // controller inputs (16 bytes)
-    //pub flags: ControllerFlags,
-    pub unused_input: u8,
+    pub _unused_input: u8,
 
     pub buttons: ControllerButtons,
 

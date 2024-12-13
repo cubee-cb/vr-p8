@@ -135,7 +135,7 @@ potentially, we could utilise pico-8's normal display memory and reconstruct it 
 
 ### thoughts
 - updates will be juddery, as pico-8 runs at up to 60fps, while most hmds run at 90hz (2/3).
-    - this could be mitigated by running pico-8 at 30fps and interpolating the other two frames. (1/3) (for hmds at 90hz)
+    - this could be mitigated by running pico-8 at 30fps and interpolating transforms for the other two frames. (1/3) (for hmds at 90hz)
     - or, set the hmd to a 60hz or 120hz refresh rate. (1 or 1/2)
     - or, run pico-8 on a display at the hmd refresh rate and use `_set_fps()` to match it.
         - this comes with other issues, however. like very low cpu limits, or whether that bug has been or will be fixed.

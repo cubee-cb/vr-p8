@@ -65,11 +65,11 @@ end
 
 function vr_update()
  -- write occupied
- poke(vr_buffer,0b00000001)
+ --poke(vr_buffer,0b00000001)
  
  
  -- write free
- poke(vr_buffer,0b00000000)
+ --poke(vr_buffer,0b00000000)
 end
 
 function vr_clear_transforms()
@@ -99,18 +99,41 @@ function vr_add_transform(x,y,z)
  vr_trans_idx+=1
 end
 
-btn_stride=1
-function vr_btn(b)
+-- hmd:0 left:1 right:2
+function vr_device_pose(id)
+ local stride=6
 
- return peek(vr_addr+btn_stride*b)
-end
+ local addr=vr_gpio+16+id*stride
 
-function vr_axis(a)
- return rnd(2)-1
-end
-
-function vr_rumble(a)
+ local x=peek2(addr)
+ local y=peek2(addr+2)
+ local z=peek2(addr+4)
  
+ local yaw=peek2(addr+6)
+ local pit=peek2(addr+8)
+ local rol=peek2(addr+10)
+ 
+ return x,y,z,yaw,pit,rol
+end
+
+function vr_btn(b)
+ --todo: deconstruct bitfield
+ return peek(vr_addr+1)
+end
+
+-- lt:0 rt:1 lg:2 rg:3
+function vr_trigger(t)
+ return peek(vr_gpio+2+t)
+end
+
+-- x,y: left:0,1 right:2,3
+function vr_axis(a)
+ return peek2(vr_gpio+6+a*2)
+end
+
+-- left:0 right:1
+function vr_rumble(r,a)
+ poke(vr_gpio+14+r,a)
 end
 
 -->8
