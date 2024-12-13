@@ -16,12 +16,14 @@ pub struct TransBuffer {
     pub transforms: [Transform; VR_MAX_TRANSFORMS as usize]
 }
 
+/*/
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum State {
     Free,
     _OccupiedWriting,
     OccupiedRendering
 }
+// */
 
 enum TransType {
     Vertex,
@@ -49,7 +51,7 @@ pub fn draw_tri(transforms:Vec<Transform>) {
 
 }
 
-pub fn render_buffer(mut buffer:TransBuffer) -> bool {
+pub fn render_buffer(buffer:TransBuffer) -> bool {
     /*/ skip if the buffer is not free
     if buffer.state != State::Free {
         return false;

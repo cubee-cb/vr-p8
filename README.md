@@ -134,6 +134,11 @@ potentially, we could utilise pico-8's normal display memory and reconstruct it 
 - a demo game in pico-8 (probably a bad saber remake)
 
 ### thoughts
+- updates will be juddery, as pico-8 runs at up to 60fps, while most hmds run at 90hz (2/3).
+    - this could be mitigated by running pico-8 at 30fps and interpolating the other two frames. (1/3) (for hmds at 90hz)
+    - or, set the hmd to a 60hz or 120hz refresh rate. (1 or 1/2)
+    - or, run pico-8 on a display at the hmd refresh rate and use `_set_fps()` to match it.
+        - this comes with other issues, however. like very low cpu limits, or whether that bug has been or will be fixed.
 - maybe a transform type could be a "space switch", so we can have `world`, `hmd`, `left hand`, `right hand` spaces that transforms can be attached to, so that the pico-8 update rate doesn't cause controller tracking to feel juddery in-world.
     - i.e. you would change render space to left controller, place the verts for the hand, then it'll render on the hand regardless of if the transform buffer is updated or not.
 

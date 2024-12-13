@@ -8,7 +8,7 @@ function _init()
  vr_init()
 end
 
-function _update60()
+function _update()
 
  if vr_connected() then
   --poke(vr_buffer+1,rnd(-1))
