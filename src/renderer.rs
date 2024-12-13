@@ -87,10 +87,14 @@ pub fn render_buffer(buffer:TransBuffer) -> bool {
             },
 
             1 => {
+                tri_buff.clear();
                 TransType::Object
             },
 
-            2 => {TransType::_Unused},
+            2 => {
+                tri_buff.clear();
+                TransType::_Unused
+            },
 
             _ => {
                 tri_buff.clear();

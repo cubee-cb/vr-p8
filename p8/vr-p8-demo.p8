@@ -47,7 +47,7 @@ end
 
 -->8
 -- vr.p8
--- based on pinput bt vyrcossont
+-- based on pinput by vyrcossont
 --https://github.com/vyrcossont/pinput
 
 vr_gpio=0x5f80
