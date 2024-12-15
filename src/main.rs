@@ -31,13 +31,11 @@ fn main() -> Result<(), Error> {
             .expect("couldn't find the OpenXR loader; try enabling the \"static\" feature")
     };
 
-    println!("a");
-
     let extensions = entry.enumerate_extensions().unwrap();
-    println!("supported extensions: {:#?}", extensions);
+    //println!("supported extensions: {:#?}", extensions);
 
     let layers = entry.enumerate_layers().unwrap();
-    println!("supported layers: {:?}", layers);
+    //println!("supported layers: {:?}", layers);
 
     let instance = entry
         .create_instance(

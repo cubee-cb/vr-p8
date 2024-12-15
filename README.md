@@ -32,6 +32,8 @@ rust newbie tries to build a system to connect the [PICO-8 fantasy console](http
 
 ### openxr input (hmd/controller pose, buttons) (vr to pico, for input)
 starts at gpio address (`0x5f80`)
+
+in theory, given appropriate netcode, you could increase the amount of these and make an environment with multiple players.
 ```
 -- targeting quest/pico controller layout for now
 -- 16 bytes for controls
@@ -79,7 +81,7 @@ i16 right_roll
 ### transform buffer (pico to vr, for rendering)
 starts at upper memory address (`0x8000`)
 
-coordinates are integers; the rendered world should be scaled accordingly: currently defined as 1 unit = 1cm.
+coordinates are integers; the rendered world should be scaled accordingly: currently defined as 1 unit = 1cm. this allows a coordinate range of (-32768, 32767) to be rendered, or a ~656m cube. that is kind of ridiculous for pico-8, so i will change it if it needs more precision.
 ```
 1 x
 2 x
