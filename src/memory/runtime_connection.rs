@@ -12,9 +12,11 @@ use memchr::memmem;
 use uuid::Uuid;
 use std::fmt::{Display, Formatter};
 
+#[path = "../openxr/renderer.rs"] mod renderer;
+
 use super::constants::{MAGIC, P8_GPIO, P8_UPPER};
 use super::input::HMDInterfaceArray;
-use super::renderer::TransBuffer;
+use renderer::TransBuffer;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

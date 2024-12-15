@@ -1,5 +1,5 @@
 //use openxr;
-use super::VR_MAX_TRANSFORMS;
+use crate::constants::VR_MAX_TRANSFORMS;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Transform {

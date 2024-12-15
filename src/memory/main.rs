@@ -7,76 +7,17 @@ use std::sync::mpsc::channel;
 use std::env;
 use process_memory::Memory;
 
-use openxr as xr;
-
 mod error;
 mod constants;
 mod runtime_connection;
 mod input;
-mod renderer;
 
 use crate::constants::{MAGIC, FRAME_DURATION_MS, VR_TRANS_STRIDE, VR_TRANSBUFFER_SIZE, VR_MAX_TRANSFORMS, SCAN_INTERVAL_MS};
 use crate::runtime_connection::RuntimeConnection;
 use crate::error::Error;
 use crate::input::HMDInterfaceArray;
-use crate::renderer::render_buffer;
 
 fn main() -> Result<(), Error> {
-    // init xr
-    // https://github.com/heckmarr/rustsphere/blob/master/openxr/examples/
-
-    //
-    let entry = unsafe {
-        xr::Entry::load()
-            .expect("couldn't find the OpenXR loader; try enabling the \"static\" feature")
-    };
-
-    let extensions = entry.enumerate_extensions().unwrap();
-    //println!("supported extensions: {:#?}", extensions);
-
-    let layers = entry.enumerate_layers().unwrap();
-    //println!("supported layers: {:?}", layers);
-
-    let instance = entry
-        .create_instance(
-            &xr::ApplicationInfo {
-                application_name: "vr.p8",
-                ..Default::default()
-            },
-            &xr::ExtensionSet::default(),
-            &[],
-        )
-        .unwrap();
-    
-    let instance_props = instance.properties().unwrap();
-    println!(
-        "loaded instance: {} v{}",
-        instance_props.runtime_name, instance_props.runtime_version
-    );
-    // */
-
-
-    let system = instance
-        .system(xr::FormFactor::HEAD_MOUNTED_DISPLAY)
-        .unwrap();
-    let system_props = instance.system_properties(system).unwrap();
-    println!(
-        "selected system {}: {}",
-        system_props.system_id.into_raw(),
-        if system_props.system_name.is_empty() {
-            "<unnamed>"
-        } else {
-            &system_props.system_name
-        }
-    );
-
-    let view_config_views = instance
-        .enumerate_view_configuration_views(system, xr::ViewConfigurationType::PRIMARY_STEREO)
-        .unwrap();
-    println!("view configuration views: {:#?}", view_config_views);
-
-
-
 
     // init magic
 
@@ -215,8 +156,8 @@ fn run_gamepad_loop(
                 }
                 // */
 
-                // render display from transform buffer
-                render_buffer(buffer);
+                //TODO: pass buffer to openxr process
+                //render_buffer(buffer);
 
 
             },
