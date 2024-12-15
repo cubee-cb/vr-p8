@@ -1,5 +1,5 @@
 # vr.p8
-brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffle.com/pico-8.php) to OpenXR.
+rust newbie tries to build a system to connect the [PICO-8 fantasy console](https://www.lexaloffle.com/pico-8.php) to OpenXR.
 
 ## helper program:
 - find the pico-8 process, search its memory for a magic number like [pinput](https://github.com/VyrCossont/Pinput) does.
@@ -7,19 +7,17 @@ brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffl
     - e.g. the sprite memory would be below the magic number, while the display would be above.
 - read the palette info, construct spritesheet as a texture. (detect updates and redraw?)
     - pico-8 has a fixed palette of 16 colours from a selection of 32.
-- vr.p8 renders to the hmd using standard openxr stuff.
-    - pico-8 builds a vertex buffer "scene" in memory that we process to construct the scene.
-        - pico-8 handles the main game loop, mesh and texture mapping, object transforms, constructing the scene, etc.
-        - all camera transformations, culling, rasterisation, depth sorting, (lighting?) is done on the vr.p8 side at hmd resolution.
-        - should we utilise display memory for 2d hud elements in screen space?
 - vr.p8 writes hmd/controller pose and input states to pico-8 memory.
     - pico-8's number precision doesn't matter if we're handling camera transforms in the vr.p8 application, unless we want to render something attached to the player (like hands or a ui). it should be precise enough for those purposes anyway.
     - performance of the pico-8 application also holds no bearing to the performance of vr rendering, so hmd view transforms will be smooth even if pico-8 is struggling.
-- use display palette to render triangles.
+- pico-8 builds a vertex buffer "scene" in memory that we read into vr.p8.
+    - pico-8 handles the main game loop, mesh and texture mapping, object transforms, constructing the scene, etc.
+    - all camera transformations, culling, rasterisation, depth sorting is done on the vr.p8 side at hmd resolution.
+- vr.p8 renders to the hmd using openxr/vulkan and the pico-8 display palette.
     - this program is only for interfacing with the hmd, it shouldn't do anything more than pico-8 can do such as extra colours. (though maybe vertex colour blending could be allowed)
 
 ### currently implemented
-- connecting runtime to pico-8
+- connecting vr.p8 to pico-8
 - vr.p8: writing device status to gpio
 - vr.p8: reading transforms from upper memory
 - pico-8: writing transforms to upper memory
@@ -27,16 +25,17 @@ brainstorming ways to connect the [PICO-8 fantasy console](https://www.lexaloffl
 
 ### todo
 - vr.p8: implement openxr
-- vr.p8: get vr device poses and input states
-- vr.p8: rendering triangles
+- vr.p8: get vr device poses and input states into pico-8
+- vr.p8: render triangles
 - vr.p8: get textures from pico-8 (spritesheet and display, map?)
-- pico-8: a demo game in pico-8 (probably port bad saber and finish it)
+- pico-8: a demo game, probably port bad saber and finish it
 
 ### openxr input (hmd/controller pose, buttons) (vr to pico, for input)
 starts at gpio address (`0x5f80`)
 ```
 -- targeting quest/pico controller layout for now
 -- 16 bytes for controls
+u8 (unused)
 u8 buttons:
 - a
 - b
@@ -56,7 +55,6 @@ i16 right_stick_x
 i16 right_stick_y
 u8 left_rumble
 u8 right_rumble
-u8 (unused)
 -- 36 bytes for device poses (12 per device)
 i16 hmd_x
 i16 hmd_y
@@ -81,7 +79,7 @@ i16 right_roll
 ### transform buffer (pico to vr, for rendering)
 starts at upper memory address (`0x8000`)
 
-coordinates are integers; the rendered world should be scaled accordingly: currently 1 unit is 1cm
+coordinates are integers; the rendered world should be scaled accordingly: currently defined as 1 unit = 1cm.
 ```
 1 x
 2 x
@@ -97,7 +95,6 @@ coordinates are integers; the rendered world should be scaled accordingly: curre
 ```
 
 Meta transforms are used to control certain things, like render space.
-If no flags are set, they do nothing and can be used to separate tri fans.
 ```
 7 meta 1
     2 enable flag (render space)
@@ -106,12 +103,9 @@ If no flags are set, they do nothing and can be used to separate tri fans.
 8 meta 2
     0-7 unused
 ```
+If no flags are set, they do nothing and can be used to separate tri fans.
 
 Vertex transforms draw triangles in fans: after drawing one tri, its last two verts are reused for the next tri.
-- Colour of the triangle and its blend state are determined by the last transform.
-- A tri fan stops once a non-vertex transform is reached.
-- UVs have a precision of 0-63, in half-tile steps
-    - this allows for wrapping uvs, since 0-32 cover the full map
 ```
 7 u + switches
     2-3 u / (unused)
@@ -121,17 +115,21 @@ Vertex transforms draw triangles in fans: after drawing one tri, its last two ve
     1 vertex blend switch
     2-7 v / (unused)
 ```
+- Colour of the triangle and its blend state are determined by the last transform.
+- A tri fan stops once a non-vertex transform is reached.
+- UVs have a precision of 0-63, in half-tile steps
+    - this allows for wrapping uvs, since 0-32 cover the full map
 
 Point transforms let shapes be drawn at a location.
-- for a circle, 8 is used as the radius.
-- for a billboard, 8 is used as the sprite index, and colour is used as size.
-    - Small billboards are 1-16cm (1cm step) and use one sprite. They always face the camera on yaw and pitch.
-    - Large billboards are 20-320cm (20cm step) and use sprites from 1x1 to 4x4 based on size. They only face the camera on yaw.
 ```
 7 shape
     2-3 shape (circle, small billboard, large billboard, 3)
 8 shape value (0-255)
 ```
+- for a circle, 8 is used as the radius.
+- for a billboard, 8 is used as the sprite index, and colour is used as size.
+    - Small billboards are 1-16cm (1cm step) and use one sprite. They always face the camera on yaw and pitch.
+    - Large billboards are 20-320cm (20cm step) and use sprites from 1x1 to 4x4 based on size. They only face the camera on yaw.
 
 ### screenspace canvas
 potentially, we could utilise pico-8's normal display memory and reconstruct it as a texture to display for screenspace HUD elements. This should follow the display palette and transparency settings.
